@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 // WriteToConsole is a middleware that logs a message to the console
@@ -21,3 +23,19 @@ func WriteToConsole(next http.Handler) http.Handler {
 	})
 }
 
+// NoSurf is a middleware function that adds CSRF protection to the provided http.Handler.
+func NoSurf(next http.Handler) http.Handler {
+	// Create a new nosurf middleware, wrapping the provided http.Handler.
+	csrfHandler := nosurf.New(next)
+
+	// Set the properties of the base CSRF cookie.
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,                 // The cookie is not accessible through JavaScript.
+		Path:     "/",                  // The cookie is available for all paths on the domain.
+		Secure:   false,                // Change to true if serving over HTTPS.
+		SameSite: http.SameSiteLaxMode, // SameSiteLaxMode is a common setting for CSRF protection.
+	})
+
+	// Return the configured CSRF handler.
+	return csrfHandler
+}

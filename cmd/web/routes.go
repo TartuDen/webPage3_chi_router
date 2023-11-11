@@ -17,6 +17,10 @@ func routes(a *config.AppConfig) http.Handler {
 	// This middleware recovers and logs panics, preventing the application from crashing.
 	mux.Use(middleware.Recoverer)
 
+	// Use the NoSurf middleware with the chi router.
+	// This adds CSRF protection to all routes registered with this router.
+	mux.Use(NoSurf)
+
 	// Add a route for HTTP GET requests to the root path ("/").
 	// Associate the MainHandler function from the handler.Repo struct with this route.
 	mux.Get("/", handler.Repo.MainHandler)
