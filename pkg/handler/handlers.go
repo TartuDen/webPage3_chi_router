@@ -33,6 +33,8 @@ func NewHandlers(r *Repository) {
 // MainHandler is a method of the Repository struct that handles requests to the main page.
 // It renders the "home.page.html" template to the provided HTTP response writer.
 func (m *Repository) MainHandler(w http.ResponseWriter, r *http.Request) {
+	remoteIP:=r.RemoteAddr
+	m.App.Session.Put(r.Context(),"remote_ip",remoteIP)
 	renderer.RendererTemplate(w, "home.page.html", &models.TemplateData{})
 }
 
@@ -40,13 +42,13 @@ func (m *Repository) MainHandler(w http.ResponseWriter, r *http.Request) {
 // It renders the "about.page.html" template to the provided HTTP response writer.
 func (m *Repository) AboutHandler(w http.ResponseWriter, r *http.Request) {
 	//perform some logic
-
-	// stringData := models.TemplateData{
-	// 	StringMap: map[string]string{"test": "this is test data!"},
-	// }
+	stringMap:=make(map[string]string)
+	stringMap["test"]="this is test data!"
+	remoteIP:= m.App.Session.GetString(r.Context(),"remote_ip")
+	stringMap["remote_ip"]=remoteIP
 
 	//send data to the template
 	renderer.RendererTemplate(w, "about.page.html", &models.TemplateData{
-		StringMap: map[string]string{"test": "this is test data!"},
+		StringMap: stringMap,
 	})
 }

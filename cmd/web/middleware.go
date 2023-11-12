@@ -15,7 +15,7 @@ func WriteToConsole(next http.Handler) http.Handler {
 	// calls the ServeHTTP method of the next handler in the chain.
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log a message to the console indicating that the page has been hit.
-		fmt.Println("Hit the page!")
+		fmt.Println("middleware is working!")
 
 		// Call the ServeHTTP method of the next handler in the chain
 		// to continue processing the HTTP request.
@@ -32,10 +32,19 @@ func NoSurf(next http.Handler) http.Handler {
 	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,                 // The cookie is not accessible through JavaScript.
 		Path:     "/",                  // The cookie is available for all paths on the domain.
-		Secure:   false,                // Change to true if serving over HTTPS.
+		Secure:   app.InProduction,     // Change to true if serving over HTTPS.
 		SameSite: http.SameSiteLaxMode, // SameSiteLaxMode is a common setting for CSRF protection.
 	})
 
 	// Return the configured CSRF handler.
 	return csrfHandler
+}
+
+
+// SessionLoad is a middleware function that manages the loading and saving of user sessions.
+// It takes an http.Handler as an argument and returns a new http.Handler.
+func SessionLoad(next http.Handler) http.Handler {
+    // The session.LoadAndSave function is used to handle session loading and saving.
+    // It is likely provided by a session management library.
+    return session.LoadAndSave(next)
 }

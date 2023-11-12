@@ -13,13 +13,7 @@ func routes(a *config.AppConfig) http.Handler {
 	// Create a new instance of the chi router.
 	mux := chi.NewRouter()
 
-	// Use the Recoverer middleware from chi.
-	// This middleware recovers and logs panics, preventing the application from crashing.
-	mux.Use(middleware.Recoverer)
-
-	// Use the NoSurf middleware with the chi router.
-	// This adds CSRF protection to all routes registered with this router.
-	mux.Use(NoSurf)
+	middlewareFunc(mux)
 
 	// Add a route for HTTP GET requests to the root path ("/").
 	// Associate the MainHandler function from the handler.Repo struct with this route.
@@ -31,4 +25,21 @@ func routes(a *config.AppConfig) http.Handler {
 
 	// Return the configured chi router.
 	return mux
+}
+
+// middlewareFunc locates all middleware functions
+func middlewareFunc(mux *chi.Mux) {
+	mux.Use(WriteToConsole)
+
+	// Use the Recoverer middleware from chi.
+	// This middleware recovers and logs panics, preventing the application from crashing.
+	mux.Use(middleware.Recoverer)
+
+	// Use the NoSurf middleware with the chi router.
+	// This adds CSRF protection to all routes registered with this router.
+	mux.Use(NoSurf)
+
+	// Apply the SessionLoad middleware to the chi router.
+	// This ensures that the loading and saving of user sessions is handled for all routes registered with this router.
+	mux.Use(SessionLoad)
 }

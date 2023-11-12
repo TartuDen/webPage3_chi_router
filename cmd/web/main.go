@@ -4,17 +4,33 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/TartuDen/webPage3_chi_router/pkg/config"
 	"github.com/TartuDen/webPage3_chi_router/pkg/handler"
 	"github.com/TartuDen/webPage3_chi_router/pkg/renderer"
+	"github.com/alexedwards/scs/v2"
 )
 
 const Port = ":8080"
 
+// In the main function, an instance of the config.AppConfig struct is created and stored in the app variable.
+var app config.AppConfig
+
+var session *scs.SessionManager
+
 func main() {
-	// In the main function, an instance of the config.AppConfig struct is created and stored in the app variable.
-	var app config.AppConfig
+
+	//Change this to true when in production
+	app.InProduction = false
+
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = false
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Secure = app.InProduction
+
+	app.Session = session
 
 	// The script attempts to create a template cache using renderer.CreateTemplateCache() and stores it in the app.TemplateCache.
 	tc, err := renderer.CreateTemplateCache()
